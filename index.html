@@ -39,9 +39,13 @@
         <p>This application estimates the percentage of time you are paying attention to your task by randomly asking you
         whether you are on task or distracted.  It will automatically adapt the expected interval between prompts based
         on your past performance.</p>
-        <p>You're current efficiency is:</p>
+        <p>Based on <span id="samples"></span> samples, your estimated attention span is:</p>
         <div>
-            <span id="efficiency"></span>% based on <span id="samples"></span> samples.
+            <span id="attentionSpan"></span> minutes.
+        </div>
+        <p>Your current efficiency is:</p>
+        <div>
+            <span id="efficiency"></span>% 
         </div>
         <audio id="audioPrompt" preload=auto controls>
             <source src="audio/HowsItGoing.ogg" type="audio/ogg"></source>

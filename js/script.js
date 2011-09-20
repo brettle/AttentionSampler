@@ -36,7 +36,8 @@ as = {
   },
   displayStats: function() {
       $("#efficiency").html(Math.round(as.efficiency*100));
-      $("#samples").html(as.history.length);      
+      $("#attentionSpan").html(Math.round(as.interval/60000));
+      $("#samples").html(as.history.length);
   }
 };
 
