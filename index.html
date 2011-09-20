@@ -43,7 +43,11 @@
         <div>
             <span id="efficiency"></span>% based on <span id="samples"></span> samples.
         </div>
-        <audio id="audioPrompt" preload=auto src="audio/HowsItGoing.ogg"></audio>
+        <audio id="audioPrompt" preload=auto controls>
+            <source src="audio/HowsItGoing.ogg" type="audio/ogg"></source>
+            <source src="audio/HowsItGoing.mp3" type="audio/mpeg"></source>
+            <source src="audio/HowsItGoing.wav" type="audio/vnd.wav"></source>
+        </audio>
     </div>
   <footer>
 
