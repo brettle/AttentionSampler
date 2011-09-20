@@ -36,7 +36,7 @@ as = {
   },
   displayStats: function() {
       $("#efficiency").html(Math.round(as.efficiency*100));
-      $("#attentionSpan").html(Math.round(as.interval/2.0/60000));
+      $("#attentionSpan").html(Math.round(as.interval/2.0/600)/100);
       $("#samples").html(as.history.length);
   }
 };
