@@ -33,14 +33,14 @@ as = {
       var interval = getMedian(as.history.slice(Math.max(-10, -1*as.history.length)));
       var focused = window.confirm("How's it going?");
       if (focused) {
-          interval = Math.max(interval, as.interval);
+          as.interval = Math.max(interval, as.interval);
           as.history.pop();
           as.wait();
       } else {
           as.interval = interval;
           as.start();
       }
-      as.displayInterval(interval);
+      as.displayInterval();
       function getMedian(arr) {
           var sortedArr = arr.slice(0).sort(function(a,b) {return a-b;});
           if (sortedArr.length % 2 == 1) {
@@ -50,13 +50,24 @@ as = {
           }
       }
   },
-  displayInterval: function(interval) {
-      $("#attentionSpan").html(Math.round(interval/600)/100);
+  displayInterval: function() {
+      $("#attentionSpan").html(Math.round(as.interval/600)/100);
   }
 };
 
 $(function() {
-    as.displayInterval(60000);
+    as.interval = 60000;
+    as.history.push(as.interval * Math.pow(1.1, 1));
+    as.history.push(as.interval * Math.pow(1.1, -1));
+    as.history.push(as.interval * Math.pow(1.1, 5));
+    as.history.push(as.interval * Math.pow(1.1, -5));
+    as.history.push(as.interval * Math.pow(1.1, 3));
+    as.history.push(as.interval * Math.pow(1.1, -3));
+    as.history.push(as.interval * Math.pow(1.1, 2));
+    as.history.push(as.interval * Math.pow(1.1, -2));
+    as.history.push(as.interval * Math.pow(1.1, 4));
+    as.history.push(as.interval * Math.pow(1.1, -4));
+    as.displayInterval();
     as.start(); 
 });
 
