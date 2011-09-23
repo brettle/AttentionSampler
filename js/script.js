@@ -62,8 +62,15 @@ as = {
       var popup = window.open('','promptPopup','height=200,width=150');
       var popupDoc = popup.document;
       popupDoc.write("<html><head><title>How's it going?</title></head><body>");
-      popupDoc.write("Hello world!")
-      popupDoc.write("</body></html>");
+      popupDoc.write($("#promptContent").html());
+      popupDoc.write('<script src="//ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>');
+      popupDoc.write('<script>');
+      popupDoc.write('$(function() {');
+      popupDoc.write('var parent = window.parent;');
+      popupDoc.write('$("#distracted").click(function() { window.opener.$("#distracted").click(); window.close(); });');
+      popupDoc.write('$("#focused").click(function() { window.opener.$("#focused").click(); window.close(); });');
+      popupDoc.write('});');
+      popupDoc.write('</script></body></html>');
       popupDoc.close();
       popup.focus();
   },
@@ -129,7 +136,7 @@ $(function() {
     as.history.push(as.timeBetweenPrompts * Math.pow(1.1, -2));
     as.history.push(as.timeBetweenPrompts * Math.pow(1.1, 4));
     as.history.push(as.timeBetweenPrompts * Math.pow(1.1, -4));
-    as.prompt = as.promptConfirm;
+    as.prompt = as.promptPopup;
     $("#running").change(function() {
         if ($(this).prop("checked")) {
             as.wait();            
@@ -138,6 +145,7 @@ $(function() {
             as.pause();
         }
     });
+    $("#promptMe").click(function() { as.playAudio(); });
     $("#distracted").click(function() { as.pause(); as.distracted(); });
     $("#focused").click(function() { as.pause(); as.focused(); });
     as.calcNextPromptTime();

@@ -40,15 +40,19 @@
         whether you are on task or distracted.  It will automatically adapt the expected interval between prompts based
         on your past performance.</p>
         <label refid="running"><input id="running" label="Running" type="checkbox"></input>Running</label>
-        <button id="distracted">I got distracted</button>
-        <button id="focused">I'm still focused</button>
         <p>You've been paying attention for <span id="elapsedSecs"></span> seconds so far this time.</p>
         <p>Your current estimated attention span is <span id="attentionSpanMins"></span> minutes.</p>
+        <button id="promptMe">Prompt me</button>
         <audio id="audioPrompt" preload=auto controls>
             <source src="audio/HowsItGoing.ogg" type="audio/ogg"></source>
             <source src="audio/HowsItGoing.mp3" type="audio/mpeg"></source>
             <source src="audio/HowsItGoing.wav" type="audio/x-wav"></source>
         </audio>
+    </div>
+    <div id="promptContent">
+        <p>How's it going?</p>
+        <button id="distracted">I got distracted</button>
+        <button id="focused">I'm still focused</button>
     </div>
   <footer>
 
