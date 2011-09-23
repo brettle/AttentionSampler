@@ -61,10 +61,10 @@ as = {
   promptPopup: function() {
       var popup = window.open('','promptPopup','height=200,width=150');
       var popupDoc = popup.document;
-      popup.write("<html><head><title>How's it going?</title></head><body>");
-      popup.write("Hello world!")
-      popup.write("</body></html>");
-      popup.close();
+      popupDoc.write("<html><head><title>How's it going?</title></head><body>");
+      popupDoc.write("Hello world!")
+      popupDoc.write("</body></html>");
+      popupDoc.close();
       popup.focus();
   },
   promptConfirm: function() {
