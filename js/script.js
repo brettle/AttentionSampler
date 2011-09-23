@@ -3,22 +3,54 @@
  * Licensed under the terms of the AGPL3.
  */
 as = {
-  interval: 60000,
+  timeSinceAttemptStart: 0,
+  timeSincePromptStart: 0,
+  timeBetweenPrompts: 300000,
+  attentionSpanMedian: 300000,
+  attentionSpanMean: 300000,
   factor: 1.2,
-  efficiency: 0.0,
   history: [],
-  focusedCount: 0,
+  timeoutID: null,
+  intervalID: null,
+  
   start: function() {
-      as.startTime = Date.now();
+      as.wait();
+  },
+  pause: function() {
+      if (as.timeoutID) {
+          window.clearTimeout(as.timeoutID);
+          window.clearInterval(as.intervalID);          
+      }
+      as.timeoutID = null;
+      as.intervalID = null;
+      as.updateTimes();
+  },
+  updateTimes: function() {
+      if (!as.startTime) {
+          return;
+      }
+      var timeSinceStart = Date.now() - as.startTime;
+      as.estimatedFocusTime = as.timeSinceAttemptStart + timeSinceStart/2.0;
+      as.timeSincePromptStart += timeSinceStart;
+      as.timeSinceAttemptStart += timeSinceStart;
+      as.startTime = null;
+  },
+  calcNextPromptTime: function () {
+      as.timeSincePromptStart = 0;
+      as.timeBetweenPrompts = Math.min(3*as.attentionSpanMedian, -1.0*as.attentionSpanMedian*Math.log(1.0-Math.random()));
       as.wait();
   },
   wait: function() {
-      as.timeSinceStart = Date.now() - as.startTime;
-      var delay = Math.min(3*as.interval, -1.0*as.interval*Math.log(1.0-Math.random()));
-      window.setTimeout(as.playAudio, 10000 + delay);
+      if (as.timeoutID)
+        return;
+      var delay = as.timeBetweenPrompts - as.timeSincePromptStart;
+      as.startTime = Date.now();
+      as.timeoutID = window.setTimeout(as.playAudio, 10000 + delay);
+      as.intervalID = window.setInterval(as.displayElapsedTime, 1000);
   },
   playAudio: function() {
       var audioPrompt;
+      as.pause();
       if (!audioPrompt) {
           audioPrompt = $("#audioPrompt")[0];
           audioPrompt.addEventListener("ended", as.prompt);
@@ -27,48 +59,80 @@ as = {
       audioPrompt.play();      
   },
   prompt: function() {
-      var timeSinceStart = Date.now() - as.startTime;
-      var estimatedFocusTime = (timeSinceStart + as.timeSinceStart)/2.0;
-      as.history.push(estimatedFocusTime);
-      var interval = getMedian(as.history.slice(Math.max(-10, -1*as.history.length)));
       var focused = window.confirm("How's it going?");
       if (focused) {
-          as.interval = Math.max(interval, as.interval);
-          as.history.pop();
-          as.wait();
+          as.focused();
       } else {
-          as.interval = interval;
-          as.start();
-      }
-      as.displayInterval();
-      function getMedian(arr) {
-          var sortedArr = arr.slice(0).sort(function(a,b) {return a-b;});
-          if (sortedArr.length % 2 == 1) {
-              return sortedArr[(sortedArr.length - 1) / 2];
-          } else {
-              return (sortedArr[sortedArr.length / 2] + sortedArr[sortedArr.length / 2 - 1]) / 2.0;
-          }
+          as.distracted();
       }
   },
-  displayInterval: function() {
-      $("#attentionSpan").html(Math.round(as.interval/600)/100);
+  focused: function() {
+      var mostRecent = as.history.slice(Math.max(-10, -1*as.history.length));
+      mostRecent.push(as.estimatedFocusTime);
+      var median = as.getMedian(mostRecent);
+      var mean = as.getMean(mostRecent);
+      as.attentionSpanMedian = Math.max(median, as.attentionSpanMedian);
+      as.attentionSpanMean = Math.max(mean, as.attentionSpanMean);
+      as.calcNextPromptTime();
+      as.displayAttentionSpan();
+  },
+  distracted: function() {      
+      as.history.push(as.estimatedFocusTime);
+      var mostRecent = as.history.slice(Math.max(-10, -1*as.history.length));
+      var median = as.getMedian(mostRecent);
+      var mean = as.getMean(mostRecent);
+      as.attentionSpanMedian = median;
+      as.attentionSpanMean = mean;
+      as.timeSinceAttemptStart = 0;
+      as.calcNextPromptTime();
+      as.displayAttentionSpan();
+  },
+  getMedian: function(arr) {
+      var sortedArr = arr.slice(0).sort(function(a,b) {return a-b;});
+      if (sortedArr.length % 2 == 1) {
+          return sortedArr[(sortedArr.length - 1) / 2];
+      } else {
+          return (sortedArr[sortedArr.length / 2] + sortedArr[sortedArr.length / 2 - 1]) / 2.0;
+      }
+  },
+  getMean: function(arr) {
+      var sum = 0;
+      arr.forEach(function(v) {sum += v});
+      return 1.0 * sum / arr.length;
+  },
+  displayAttentionSpan: function() {
+      $("#attentionSpanMins").html(Math.round(as.attentionSpanMean/600)/100);
+  },
+  displayElapsedTime: function() {
+      $("#elapsedSecs").html(Math.round((as.timeSinceAttemptStart + (Date.now() - as.startTime))/1000));
   }
 };
 
 $(function() {
-    as.interval = 5*60000;
-    as.history.push(as.interval * Math.pow(1.1, 1));
-    as.history.push(as.interval * Math.pow(1.1, -1));
-    as.history.push(as.interval * Math.pow(1.1, 5));
-    as.history.push(as.interval * Math.pow(1.1, -5));
-    as.history.push(as.interval * Math.pow(1.1, 3));
-    as.history.push(as.interval * Math.pow(1.1, -3));
-    as.history.push(as.interval * Math.pow(1.1, 2));
-    as.history.push(as.interval * Math.pow(1.1, -2));
-    as.history.push(as.interval * Math.pow(1.1, 4));
-    as.history.push(as.interval * Math.pow(1.1, -4));
-    as.displayInterval();
-    as.start(); 
+    as.timeBetweenPrompts = 5*60000;
+    as.history.push(as.timeBetweenPrompts * Math.pow(1.1, 1));
+    as.history.push(as.timeBetweenPrompts * Math.pow(1.1, -1));
+    as.history.push(as.timeBetweenPrompts * Math.pow(1.1, 5));
+    as.history.push(as.timeBetweenPrompts * Math.pow(1.1, -5));
+    as.history.push(as.timeBetweenPrompts * Math.pow(1.1, 3));
+    as.history.push(as.timeBetweenPrompts * Math.pow(1.1, -3));
+    as.history.push(as.timeBetweenPrompts * Math.pow(1.1, 2));
+    as.history.push(as.timeBetweenPrompts * Math.pow(1.1, -2));
+    as.history.push(as.timeBetweenPrompts * Math.pow(1.1, 4));
+    as.history.push(as.timeBetweenPrompts * Math.pow(1.1, -4));
+    $("#running").change(function() {
+        if ($(this).prop("checked")) {
+            as.wait();            
+        } else {
+            as.pause();
+        }
+    });
+    $("#distracted").click(function() { as.pause(); as.distracted(); });
+    $("#focused").click(function() { as.pause(); as.focused(); });
+    as.calcNextPromptTime();
+    as.displayAttentionSpan();
+    as.displayElapsedTime();
+    as.pause();
 });
 
 
