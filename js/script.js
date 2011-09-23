@@ -56,7 +56,7 @@ as = {
 };
 
 $(function() {
-    as.interval = 60000;
+    as.interval = 5*60000;
     as.history.push(as.interval * Math.pow(1.1, 1));
     as.history.push(as.interval * Math.pow(1.1, -1));
     as.history.push(as.interval * Math.pow(1.1, 5));
