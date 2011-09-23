@@ -58,7 +58,16 @@ as = {
       audioPrompt.currentTime = 0.0;
       audioPrompt.play();      
   },
-  prompt: function() {
+  promptPopup: function() {
+      var popup = window.open('','promptPopup','height=200,width=150');
+      var popupDoc = popup.document;
+      popup.write("<html><head><title>How's it going?</title></head><body>");
+      popup.write("Hello world!")
+      popup.write("</body></html>");
+      popup.close();
+      popup.focus();
+  },
+  promptConfirm: function() {
       var focused = window.confirm("How's it going?");
       if (focused) {
           as.focused();
@@ -120,9 +129,11 @@ $(function() {
     as.history.push(as.timeBetweenPrompts * Math.pow(1.1, -2));
     as.history.push(as.timeBetweenPrompts * Math.pow(1.1, 4));
     as.history.push(as.timeBetweenPrompts * Math.pow(1.1, -4));
+    as.prompt = as.promptConfirm;
     $("#running").change(function() {
         if ($(this).prop("checked")) {
             as.wait();            
+            window.setTimeout(as.promptPopup, 5000);
         } else {
             as.pause();
         }
