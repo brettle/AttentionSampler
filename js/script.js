@@ -140,7 +140,6 @@ $(function() {
     $("#running").change(function() {
         if ($(this).prop("checked")) {
             as.wait();            
-            window.setTimeout(as.promptPopup, 5000);
         } else {
             as.pause();
         }
